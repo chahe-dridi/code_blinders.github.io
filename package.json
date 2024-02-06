@@ -1,0 +1,14 @@
+{
+  "name": "three_js_count_down",
+  "version": "1.0.0",
+  "description": "three js project shows a count down from a special date modified",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "three.js"
+  ],
+  "author": "chaher dridi https://www.linkedin.com/in/chaher-dridi-790b72219/",
+  "license": "ISC"
+}
