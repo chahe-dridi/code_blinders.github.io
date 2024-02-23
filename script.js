@@ -4,7 +4,7 @@ const preload = async () => {
         const particle = await loadImage('https://res.cloudinary.com/dfvtkoboz/image/upload/v1605013866/particle_a64uzf.png');
 
         const environment = new Environment(font, particle);
-        environment.addImage();
+        environment.addRotatingImage();
     } catch (error) {
         console.error('Error loading resources:', error);
     } 
@@ -26,11 +26,6 @@ const loadImage = (url) => {
             resolve(image);
         }, undefined, reject);
     });
-
-
-
-
-
 };
 
 document.addEventListener('DOMContentLoaded', preload);
@@ -47,59 +42,95 @@ document.addEventListener('DOMContentLoaded', preload);
 	  this.setup();
 	  this.bindEvents();
 	}
-	addImage() {
-        const logoTexture = new THREE.TextureLoader().load('acm.png');
-        const logoMaterial = new THREE.MeshBasicMaterial({ map: logoTexture, side: THREE.DoubleSide });
-        const logoSize = { width: 100, height: 45 }; // Initial size, adjust as needed
-        const logoGeometry = new THREE.PlaneGeometry(logoSize.width, logoSize.height);
+	
+	
 
-        const logoMesh = new THREE.Mesh(logoGeometry, logoMaterial);
-
-        // Update logo position and size on resize
-        const updateLogo = () => {
-            const aspectRatio = this.container.clientWidth / this.container.clientHeight;
-            const targetWidth = this.container.clientWidth * 0.1; // Adjust as needed
-            const targetHeight = targetWidth / aspectRatio;
-
-            logoMesh.scale.set(targetWidth / logoSize.width, targetHeight / logoSize.height, 1);
-            logoMesh.position.set(targetWidth-650, aspectRatio-200 , -350);
-        };
-
-        // Call the updateLogo function initially
-        updateLogo();
-
-        // Add the logo mesh to the scene
-        this.scene.add(logoMesh);
-
-        // Listen for window resize event
-        window.addEventListener('resize', () => {
-            updateLogo();
-        });
-    }
-
+	
+	
 
 
  
 	createBackground() {
-		const backgroundTexture = new THREE.TextureLoader().load('code.jpg', function(texture) {
-			texture.encoding = THREE.sRGBEncoding;
-		 
+		const video = document.createElement('video');
+		video.src = 'acm.mp4';
+		video.loop = true;
+		video.muted = true;
+		video.play(); // You need to play the video for autoplay
+		video.addEventListener('error', (e) => {
+			console.error('Error loading video:', e);
+		});
+		video.addEventListener('loadeddata', () => {
+			const videoTexture = new THREE.VideoTexture(video);
+			videoTexture.encoding = THREE.sRGBEncoding;
+	
+			// Adjust the width and height of the video here
+			const videoWidth = 1920; // Specify the desired width
+			const videoHeight = 1080; // Specify the desired height
+	
+			const backgroundGeometry = new THREE.PlaneGeometry(videoWidth, videoHeight);
+			const backgroundMaterial = new THREE.MeshBasicMaterial({ map: videoTexture });
+	
+			this.backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+			this.scene.add(this.backgroundMesh); // Add the background mesh to the scene
 		});
 	
-		const backgroundMaterial = new THREE.MeshBasicMaterial({ map: backgroundTexture });
-	
-		// Adjust opacity or brightness as needed
-		backgroundMaterial.opacity = 0.7; // Adjust the opacity level
-		backgroundMaterial.transparent = true;
-	
-		const aspectRatio = window.innerWidth / window.innerHeight;
-		const backgroundGeometry = new THREE.PlaneGeometry(2000 * aspectRatio, 2000);
-		const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-		backgroundMesh.position.z = -1500;
-		this.scene.add(backgroundMesh);
+		// Append the video element to the DOM to trigger loading
+		document.body.appendChild(video);
 	}
 	
 	
+	
+	
+	
+	addRotatingImage() {
+		// Load the texture
+		const texture = new THREE.TextureLoader().load('acm.png');
+	
+		// Create a material with the texture and enable transparency
+		const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide });
+	
+		// Create a geometry for the image
+		const geometry = new THREE.PlaneGeometry(100, 100); // Adjust the size as needed
+	
+		// Create the mesh using the geometry and material
+		const imageMesh = new THREE.Mesh(geometry, material);
+	
+		// Function to update the position of the image mesh
+		const updateImagePosition = () => {
+			// Calculate the position relative to the container's size
+			const offsetX = -this.container.clientWidth / 2 + 250;
+			const offsetY = -this.container.clientHeight / 2 + 150;
+	
+			// Position the mesh in the bottom left corner of the screen
+			imageMesh.position.set(offsetX, offsetY, -500);
+		};
+	
+		// Initial position update
+		updateImagePosition();
+	
+		// Add the mesh to the scene
+		this.scene.add(imageMesh);
+	
+		// Update the rotation and position of the image mesh in the animation loop
+		let time = 0;
+		this.renderer.setAnimationLoop(() => {
+			// Rotate the image mesh
+			imageMesh.rotation.y += 0.01; // Adjust rotation speed as needed
+			
+			// Apply a sine wave motion to the mesh's position along the y-axis
+			const offsetY = Math.sin(time) * 10; // Adjust the amplitude (50 in this case)
+			imageMesh.position.y = -this.container.clientHeight / 2 + 150 + offsetY;
+			
+			// Increase time for the next frame
+			time += 0.05; // Adjust speed of the wave motion
+	
+			// Render the scene
+			this.render();
+		});
+	
+		// Listen for window resize events to update the position of the image mesh
+		window.addEventListener('resize', updateImagePosition);
+	}
 	
 	
   
@@ -109,11 +140,7 @@ document.addEventListener('DOMContentLoaded', preload);
 	  
 	}
 
-	 createCamera() {
-        this.camera = new THREE.PerspectiveCamera(65, this.container.clientWidth / this.container.clientHeight, 1, 10000);
-        this.camera.position.set(0, 0, 1000); // Adjust the position based on your scene
-    }
-  
+	 
 	setup(){ 
   
 	  this.createParticles = new CreateParticles( this.scene, this.font,             this.particle, this.camera, this.renderer );
@@ -125,12 +152,26 @@ document.addEventListener('DOMContentLoaded', preload);
 	   this.renderer.render( this.scene, this.camera )
 	}
   
-	createCamera() {
+	/*createCamera() {
   
 	  this.camera = new THREE.PerspectiveCamera( 65, this.container.clientWidth /  this.container.clientHeight, 1, 10000 );
 	  this.camera.position.set( 0,0, 100 );
   
+	}*/
+
+	createCamera() {
+		// Adjust the camera parameters as needed
+		const fov = 52;//38; // Field of view in degrees
+		const aspectRatio = this.container.clientWidth / this.container.clientHeight;
+		const near = 1; // Near clipping plane
+		const far = 10000; // Far clipping plane
+	
+		this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
+	
+		// Adjust the position of the camera based on your scene
+		this.camera.position.set(0, 0, 1000); // Example position, modify as needed
 	}
+	
   
 	createRenderer() {
   
@@ -177,11 +218,11 @@ document.addEventListener('DOMContentLoaded', preload);
 		  this.data = {
   
 			  text: 'By the order of Peaky coders',
-			  amount: 1200,
-			  particleSize: 1,
+			  amount: 1900,
+			  particleSize: 8,
 			  particleColor: 0xffffff,
-			  textSize: 8,
-			  area: 250,
+			  textSize: 55,
+			  area: 1150,
 			  ease: .2,
 		  }
 			   this.setup();
@@ -476,7 +517,7 @@ document.addEventListener('DOMContentLoaded', preload);
   
 		  const material = new THREE.ShaderMaterial({
 			uniforms: {
-				color: { value: new THREE.Color(0xFFA500) },
+				color: { value: new THREE.Color(0xfce9c5) },
 				pointTexture: { value: this.particleImg },
 				// Add an ambient light color and intensity
 				ambientLightColor: { value: new THREE.Color(0x303030) },
