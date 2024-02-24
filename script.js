@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', preload);
 		const currentDate = new Date();
 	
 		// Parse the future date string in the format "YYYY MM DD hour minute second"
-		const futureDateStr = "2024 2 24 17 30 00"; // Replace this with the actual future date string
+		const futureDateStr = "2024 2 24 17 35 00"; // Replace this with the actual future date string
 		const futureDateArr = futureDateStr.split(" ");
 		const futureDate = new Date(
 			parseInt(futureDateArr[0]),  // Year
