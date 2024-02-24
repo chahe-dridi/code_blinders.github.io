@@ -516,8 +516,8 @@ document.addEventListener('DOMContentLoaded', preload);
 		  geoParticles.setAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1) );
   
 		  const material = new THREE.ShaderMaterial({
-			uniforms: {
-				color: { value: new THREE.Color(0xfce9c5) },
+			uniforms: { 
+				color: { value: new THREE.Color(0xFFA500) },
 				pointTexture: { value: this.particleImg },
 				// Add an ambient light color and intensity
 				ambientLightColor: { value: new THREE.Color(0x303030) },
